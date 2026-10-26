@@ -1,0 +1,189 @@
+@baseUrl = http://localhost:5000
+
+# Fixed Seeded Products from InMemoryProductCatalog
+# 1. Ergonomic Mechanical Keyboard ($149.99 USD)
+@keyboardId = 01950000-0000-7000-8000-000000000001
+# 2. Wireless Precision Mouse ($79.50 USD)
+@mouseId = 01950000-0000-7000-8000-000000000002
+# 3. 4K Ultra-Wide Monitor ($499.00 USD)
+@monitorId = 01950000-0000-7000-8000-000000000003
+# 4. Noise-Cancelling Headphones ($199.95 USD)
+@headphonesId = 01950000-0000-7000-8000-000000000004
+# 5. Euro USB-C Power Adapter (€29.99 EUR) - Seeded in EUR to demonstrate cross-currency mismatch
+@euroAdapterId = 01950000-0000-7000-8000-000000000005
+
+@customerId = 01950000-0000-7000-9000-000000000001
+
+### 1. Health Checks - Liveness
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. Health Checks - Readiness
+GET {{baseUrl}}/health/ready
+Accept: application/json
+
+### 3. Create Draft Order (USD)
+# @name createOrder
+POST {{baseUrl}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "currency": "USD"
+}
+
+### Capture Order ID and ETag from creation response
+@orderId = {{createOrder.response.body.id}}
+@etag = {{createOrder.response.headers.ETag}}
+
+### 4. Get Order By ID
+GET {{baseUrl}}/api/v1/orders/{{orderId}}
+Accept: application/json
+
+### 5. Add First Line Item: Mechanical Keyboard (qty: 2)
+# @name addLine1
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/lines
+Content-Type: application/json
+If-Match: {{etag}}
+
+{
+  "productId": "{{keyboardId}}",
+  "quantity": 2
+}
+
+@etag2 = {{addLine1.response.headers.ETag}}
+@line1Id = {{addLine1.response.body.lines[0].id}}
+
+### 6. Add Second Line Item: Wireless Mouse (qty: 1)
+# @name addLine2
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/lines
+Content-Type: application/json
+If-Match: {{etag2}}
+
+{
+  "productId": "{{mouseId}}",
+  "quantity": 1
+}
+
+@etag3 = {{addLine2.response.headers.ETag}}
+@line2Id = {{addLine2.response.body.lines[1].id}}
+
+### 7. Duplicate Product Addition (INV-03): Merge quantity into Keyboard line
+# @name mergeLine1
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/lines
+Content-Type: application/json
+If-Match: {{etag3}}
+
+{
+  "productId": "{{keyboardId}}",
+  "quantity": 1
+}
+
+@etag4 = {{mergeLine1.response.headers.ETag}}
+
+### 8. Currency Mismatch Demonstration (INV-05): Adding EUR product to USD order fails with 400
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/lines
+Content-Type: application/json
+If-Match: {{etag4}}
+
+{
+  "productId": "{{euroAdapterId}}",
+  "quantity": 1
+}
+
+### 9. Change Line Quantity for Mouse (qty: 3)
+# @name changeQty
+PATCH {{baseUrl}}/api/v1/orders/{{orderId}}/lines/{{line2Id}}
+Content-Type: application/json
+If-Match: {{etag4}}
+
+{
+  "quantity": 3
+}
+
+@etag5 = {{changeQty.response.headers.ETag}}
+
+### 10. Remove Mouse Line Item
+# @name removeLine
+DELETE {{baseUrl}}/api/v1/orders/{{orderId}}/lines/{{line2Id}}
+If-Match: {{etag5}}
+
+@etag6 = {{removeLine.response.headers.ETag}}
+
+### 11. Set Shipping Address (INV-07)
+# @name setAddress
+PUT {{baseUrl}}/api/v1/orders/{{orderId}}/shipping-address
+Content-Type: application/json
+If-Match: {{etag6}}
+
+{
+  "street": "500 Howard Street",
+  "city": "San Francisco",
+  "postalCode": "94105",
+  "countryCode": "US"
+}
+
+@etag7 = {{setAddress.response.headers.ETag}}
+
+### 12. Submit Order (Transitions to Submitted, locks lines, enqueues outbox integration event)
+# @name submitOrder
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/submit
+If-Match: {{etag7}}
+
+@etag8 = {{submitOrder.response.headers.ETag}}
+
+### 13. Mutation After Submit Fails with 409 Conflict (INV-02)
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/lines
+Content-Type: application/json
+If-Match: {{etag8}}
+
+{
+  "productId": "{{monitorId}}",
+  "quantity": 1
+}
+
+### 14. Precondition Failed Demonstration: Passing stale If-Match version returns 412
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/pay
+If-Match: "1"
+
+### 15. Record Payment Settlement (Submitted -> Paid)
+# @name payOrder
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/pay
+If-Match: {{etag8}}
+
+@etag9 = {{payOrder.response.headers.ETag}}
+
+### 16. Record Dispatch (Paid -> Shipped)
+# @name shipOrder
+POST {{baseUrl}}/api/v1/orders/{{orderId}}/ship
+If-Match: {{etag9}}
+
+### 17. Cancellation Flow: Create another draft and cancel it
+# @name createCancelOrder
+POST {{baseUrl}}/api/v1/orders
+Content-Type: application/json
+
+{
+  "customerId": "{{customerId}}",
+  "currency": "USD"
+}
+
+@cancelOrderId = {{createCancelOrder.response.body.id}}
+@cancelEtag = {{createCancelOrder.response.headers.ETag}}
+
+### 18. Cancel Order with mandatory reason (INV-10)
+POST {{baseUrl}}/api/v1/orders/{{cancelOrderId}}/cancel
+Content-Type: application/json
+If-Match: {{cancelEtag}}
+
+{
+  "reason": "Customer found alternative pricing elsewhere"
+}
+
+### 19. List Orders with Pagination and Filtering
+GET {{baseUrl}}/api/v1/orders?customerId={{customerId}}&status=Shipped&page=1&pageSize=10
+Accept: application/json
+
+### 20. Run Maintenance: Cancel Stale Draft Orders
+POST {{baseUrl}}/api/v1/orders/maintenance/cancel-stale-drafts?olderThanHours=24
+Accept: application/json
