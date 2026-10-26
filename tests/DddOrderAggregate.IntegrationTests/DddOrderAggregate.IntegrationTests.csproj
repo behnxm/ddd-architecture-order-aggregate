@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DddOrderAggregate.Domain\DddOrderAggregate.Domain.csproj" />
+    <ProjectReference Include="..\..\src\DddOrderAggregate.Application\DddOrderAggregate.Application.csproj" />
+    <ProjectReference Include="..\..\src\DddOrderAggregate.Infrastructure\DddOrderAggregate.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\DddOrderAggregate.Api\DddOrderAggregate.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+</Project>

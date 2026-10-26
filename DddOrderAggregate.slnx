@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DddOrderAggregate.Api/DddOrderAggregate.Api.csproj" />
+    <Project Path="src/DddOrderAggregate.Application/DddOrderAggregate.Application.csproj" />
+    <Project Path="src/DddOrderAggregate.Domain/DddOrderAggregate.Domain.csproj" />
+    <Project Path="src/DddOrderAggregate.Infrastructure/DddOrderAggregate.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DddOrderAggregate.ArchitectureTests/DddOrderAggregate.ArchitectureTests.csproj" />
+    <Project Path="tests/DddOrderAggregate.IntegrationTests/DddOrderAggregate.IntegrationTests.csproj" />
+    <Project Path="tests/DddOrderAggregate.UnitTests/DddOrderAggregate.UnitTests.csproj" />
+  </Folder>
+</Solution>

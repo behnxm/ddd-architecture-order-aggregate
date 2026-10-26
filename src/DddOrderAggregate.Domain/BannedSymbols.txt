@@ -1,0 +1,5 @@
+P:System.DateTime.Now;Use time passed as parameter instead of DateTime.Now
+P:System.DateTime.UtcNow;Use time passed as parameter instead of DateTime.UtcNow
+P:System.DateTimeOffset.Now;Use time passed as parameter instead of DateTimeOffset.Now
+P:System.DateTimeOffset.UtcNow;Use time passed as parameter instead of DateTimeOffset.UtcNow
+M:System.Guid.NewGuid;Use strongly-typed ID New() factory instead of Guid.NewGuid()
