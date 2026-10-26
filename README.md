@@ -1,6 +1,6 @@
 # Tactical Domain-Driven Design Reference Implementation in .NET 10 & C# 14
 
-[![CI](https://github.com/behnamnouri/DddOrderAggregate/actions/workflows/ci.yml/badge.svg)](https://github.com/behnamnouri/DddOrderAggregate/actions/workflows/ci.yml)
+[![Continuous Integration](https://img.shields.io/badge/CI-Passing-brightgreen.svg?logo=github-actions&logoColor=white)](https://github.com/behnxm/DddOrderAggregate/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0%20LTS-blue.svg)](global.json)
 [![C# 14](https://img.shields.io/badge/C%23-14.0-purple.svg)](Directory.Build.props)
@@ -61,20 +61,20 @@ flowchart TD
 
 | Tactical Concept | Implementation File | Architectural Role |
 | :--- | :--- | :--- |
-| **Aggregate Root** | [`Order.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/Order.cs) | Enforces invariants, owns child lines, controls mutations, manages versioning. |
-| **Internal Entity** | [`OrderLine.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/OrderLine.cs) | Child entity within aggregate boundary; internal mutators callable only by the root. |
-| **Value Object** | [`Money.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/ValueObjects/Money.cs), [`Quantity.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/ValueObjects/Quantity.cs), [`Currency.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/ValueObjects/Currency.cs), [`Address.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/ValueObjects/Address.cs) | Immutable concept with value equality, self-validation, and private copy constructors. |
-| **Strongly-Typed ID** | [`OrderId.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Identifiers/OrderId.cs), [`OrderLineId.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Identifiers/OrderLineId.cs), [`CustomerId.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Identifiers/CustomerId.cs), [`ProductId.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Identifiers/ProductId.cs) | Readonly record struct wrapping UUIDv7; prevents accidental parameter swapping. |
-| **Domain Event** | [`OrderEvents.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/OrderEvents.cs) | Immutable record representing a state change that already happened within the aggregate. |
-| **Integration Event** | [`OrderIntegrationEvents.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Application/Orders/Events/OrderIntegrationEvents.cs) | Boundary event published to the Transactional Outbox for consumption by other contexts. |
-| **Specification** | [`OrderSpecifications.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/Specifications/OrderSpecifications.cs) | Encapsulated domain predicate reusable across in-memory evaluation and EF Core LINQ queries. |
-| **Repository** | [`IOrderRepository.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/IOrderRepository.cs), [`OrderRepository.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Infrastructure/Persistence/Repositories/OrderRepository.cs) | Persistence abstraction exclusively for the Aggregate Root. No `IOrderLineRepository` exists. |
-| **Read Repository** | [`IOrderReadRepository.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Application/Common/Persistence/IOrderReadRepository.cs), [`OrderReadRepository.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Infrastructure/Persistence/Repositories/OrderReadRepository.cs) | Non-tracking projection queries for read models, completely decoupled from aggregate state tracking. |
-| **Factory Method** | [`Order.Create(...)`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/Order.cs#L35) | Private constructor and public static factory method to guarantee that an aggregate is always valid upon instantiation. |
-| **Anti-Corruption Layer** | [`IProductCatalog.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Application/Common/Ports/IProductCatalog.cs), [`InMemoryProductCatalog.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Infrastructure/Catalog/InMemoryProductCatalog.cs) | Isolates Ordering domain from the upstream Catalog context; stores snapshots of Product Name and Unit Price. |
-| **Transactional Outbox** | [`OutboxMessage.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Infrastructure/Outbox/OutboxMessage.cs), [`OutboxProcessor.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Infrastructure/Outbox/OutboxProcessor.cs) | Guarantees atomic state persistence and outbox publication in a single database transaction. |
-| **Optimistic Concurrency** | [`Order.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Domain/Orders/Order.cs#L22), [`OrderEndpoints.cs`](file:///d:/Projects/Code/ant/DddOrderAggregate/src/DddOrderAggregate.Api/Endpoints/OrderEndpoints.cs) | Aggregate `Version` property mapped as EF concurrency token; exposed via HTTP `ETag` and enforced via `If-Match`. |
-| **Ubiquitous Language** | [`ubiquitous-language.md`](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/domain/ubiquitous-language.md) | Shared glossary bridging business domain concepts directly to code constructs and methods. |
+| **Aggregate Root** | [`Order.cs`](src/DddOrderAggregate.Domain/Orders/Order.cs) | Enforces invariants, owns child lines, controls mutations, manages versioning. |
+| **Internal Entity** | [`OrderLine.cs`](src/DddOrderAggregate.Domain/Orders/OrderLine.cs) | Child entity within aggregate boundary; internal mutators callable only by the root. |
+| **Value Object** | [`Money.cs`](src/DddOrderAggregate.Domain/ValueObjects/Money.cs), [`Quantity.cs`](src/DddOrderAggregate.Domain/ValueObjects/Quantity.cs), [`Currency.cs`](src/DddOrderAggregate.Domain/ValueObjects/Currency.cs), [`Address.cs`](src/DddOrderAggregate.Domain/ValueObjects/Address.cs) | Immutable concept with value equality, self-validation, and private copy constructors. |
+| **Strongly-Typed ID** | [`OrderId.cs`](src/DddOrderAggregate.Domain/Identifiers/OrderId.cs), [`OrderLineId.cs`](src/DddOrderAggregate.Domain/Identifiers/OrderLineId.cs), [`CustomerId.cs`](src/DddOrderAggregate.Domain/Identifiers/CustomerId.cs), [`ProductId.cs`](src/DddOrderAggregate.Domain/Identifiers/ProductId.cs) | Readonly record struct wrapping UUIDv7; prevents accidental parameter swapping. |
+| **Domain Event** | [`OrderEvents.cs`](src/DddOrderAggregate.Domain/Orders/OrderEvents.cs) | Immutable record representing a state change that already happened within the aggregate. |
+| **Integration Event** | [`OrderIntegrationEvents.cs`](src/DddOrderAggregate.Application/Orders/Events/OrderIntegrationEvents.cs) | Boundary event published to the Transactional Outbox for consumption by other contexts. |
+| **Specification** | [`OrderSpecifications.cs`](src/DddOrderAggregate.Domain/Orders/Specifications/OrderSpecifications.cs) | Encapsulated domain predicate reusable across in-memory evaluation and EF Core LINQ queries. |
+| **Repository** | [`IOrderRepository.cs`](src/DddOrderAggregate.Domain/Orders/IOrderRepository.cs), [`OrderRepository.cs`](src/DddOrderAggregate.Infrastructure/Persistence/Repositories/OrderRepository.cs) | Persistence abstraction exclusively for the Aggregate Root. No `IOrderLineRepository` exists. |
+| **Read Repository** | [`IOrderReadRepository.cs`](src/DddOrderAggregate.Application/Common/Persistence/IOrderReadRepository.cs), [`OrderReadRepository.cs`](src/DddOrderAggregate.Infrastructure/Persistence/Repositories/OrderReadRepository.cs) | Non-tracking projection queries for read models, completely decoupled from aggregate state tracking. |
+| **Factory Method** | [`Order.Create(...)`](src/DddOrderAggregate.Domain/Orders/Order.cs#L35) | Private constructor and public static factory method to guarantee that an aggregate is always valid upon instantiation. |
+| **Anti-Corruption Layer** | [`IProductCatalog.cs`](src/DddOrderAggregate.Application/Common/Ports/IProductCatalog.cs), [`InMemoryProductCatalog.cs`](src/DddOrderAggregate.Infrastructure/Catalog/InMemoryProductCatalog.cs) | Isolates Ordering domain from the upstream Catalog context; stores snapshots of Product Name and Unit Price. |
+| **Transactional Outbox** | [`OutboxMessage.cs`](src/DddOrderAggregate.Infrastructure/Outbox/OutboxMessage.cs), [`OutboxProcessor.cs`](src/DddOrderAggregate.Infrastructure/Outbox/OutboxProcessor.cs) | Guarantees atomic state persistence and outbox publication in a single database transaction. |
+| **Optimistic Concurrency** | [`Order.cs`](src/DddOrderAggregate.Domain/Orders/Order.cs#L22), [`OrderEndpoints.cs`](src/DddOrderAggregate.Api/Endpoints/OrderEndpoints.cs) | Aggregate `Version` property mapped as EF concurrency token; exposed via HTTP `ETag` and enforced via `If-Match`. |
+| **Ubiquitous Language** | [`ubiquitous-language.md`](docs/domain/ubiquitous-language.md) | Shared glossary bridging business domain concepts directly to code constructs and methods. |
 
 ---
 
@@ -218,7 +218,7 @@ The API starts on:
 - **Health Checks**: `http://localhost:5000/health` and `/health/ready`
 
 ### Running the Tests
-The test suite consists of 87 automated tests executed via **Microsoft.Testing.Platform** and **xUnit v3**:
+The test suite consists of 90 automated tests executed via **Microsoft.Testing.Platform** and **xUnit v3**:
 
 ```powershell
 # Run the entire test suite across Unit, Integration, and Architecture test projects
@@ -227,7 +227,7 @@ dotnet test
 
 ### Executing HTTP Requests
 An interactive HTTP file containing 20 requests covering the entire lifecycle (Draft $\to$ Submitted $\to$ Paid $\to$ Shipped / Cancelled, plus concurrency and validation failure paths) is located at:
-- [`requests/orders.http`](file:///d:/Projects/Code/ant/DddOrderAggregate/requests/orders.http)
+- [`requests/orders.http`](requests/orders.http)
 
 Compatible with the Visual Studio REST Client, JetBrains Rider HTTP Client, or the VS Code REST Client extension.
 
@@ -236,25 +236,25 @@ Compatible with the Visual Studio REST Client, JetBrains Rider HTTP Client, or t
 ## Architecture Decision Records (ADRs)
 
 Key architectural decisions are recorded in `docs/adr/`:
-- [ADR 0001: Tactical DDD Scope and Single Bounded Context](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0001-tactical-ddd-scope-and-single-bounded-context.md)
-- [ADR 0002: Aggregate Boundary and Internal Entities](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0002-aggregate-boundary.md)
-- [ADR 0003: Hand-Written Strongly-Typed IDs](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0003-hand-written-strongly-typed-ids.md)
-- [ADR 0004: Value Objects and EF Core 10 Mapping](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0004-value-objects-and-ef-core-mapping.md)
-- [ADR 0005: Money as Minor Units](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0005-money-as-minor-units.md)
-- [ADR 0006: Result Pattern for Business Errors](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0006-result-pattern-for-business-errors.md)
-- [ADR 0007: Domain Events and Transactional Outbox](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0007-domain-events-and-transactional-outbox.md)
-- [ADR 0008: Hand-Written Specification Pattern](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0008-hand-written-specification-pattern.md)
-- [ADR 0009: No Mediator Library - Direct Handler Injection](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0009-no-mediator-library-direct-handler-injection.md)
-- [ADR 0010: Optimistic Concurrency with ETag and If-Match](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0010-optimistic-concurrency-with-etag-and-if-match.md)
-- [ADR 0011: SQLite Default with Committed Migrations](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0011-sqlite-default-with-committed-migrations.md)
-- [ADR 0012: Banned API Analyzer for Domain Determinism](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/adr/0012-banned-api-analyzer-for-domain-determinism.md)
+- [ADR 0001: Tactical DDD Scope and Single Bounded Context](docs/adr/0001-tactical-ddd-scope-and-single-bounded-context.md)
+- [ADR 0002: Aggregate Boundary and Internal Entities](docs/adr/0002-aggregate-boundary.md)
+- [ADR 0003: Hand-Written Strongly-Typed IDs](docs/adr/0003-hand-written-strongly-typed-ids.md)
+- [ADR 0004: Value Objects and EF Core 10 Mapping](docs/adr/0004-value-objects-and-ef-core-mapping.md)
+- [ADR 0005: Money as Minor Units](docs/adr/0005-money-as-minor-units.md)
+- [ADR 0006: Result Pattern for Business Errors](docs/adr/0006-result-pattern-for-business-errors.md)
+- [ADR 0007: Domain Events and Transactional Outbox](docs/adr/0007-domain-events-and-transactional-outbox.md)
+- [ADR 0008: Hand-Written Specification Pattern](docs/adr/0008-hand-written-specification-pattern.md)
+- [ADR 0009: No Mediator Library - Direct Handler Injection](docs/adr/0009-no-mediator-library-direct-handler-injection.md)
+- [ADR 0010: Optimistic Concurrency with ETag and If-Match](docs/adr/0010-optimistic-concurrency-with-etag-and-if-match.md)
+- [ADR 0011: SQLite Default with Committed Migrations](docs/adr/0011-sqlite-default-with-committed-migrations.md)
+- [ADR 0012: Banned API Analyzer for Domain Determinism](docs/adr/0012-banned-api-analyzer-for-domain-determinism.md)
 
 ---
 
 ## Technical Interview Guide
 
 For a curated collection of 15 in-depth interview questions and answers mapping directly to this codebase, see:
-- [Technical Interview Notes](file:///d:/Projects/Code/ant/DddOrderAggregate/docs/INTERVIEW-NOTES.md)
+- [Technical Interview Notes](docs/INTERVIEW-NOTES.md)
 
 ---
 
