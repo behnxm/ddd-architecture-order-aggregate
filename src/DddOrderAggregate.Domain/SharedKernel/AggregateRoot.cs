@@ -1,12 +1,28 @@
 namespace DddOrderAggregate.Domain.SharedKernel;
 
 /// <summary>
+/// Defines an entity or aggregate that records and exposes uncommitted domain events.
+/// </summary>
+public interface IHasDomainEvents
+{
+    /// <summary>
+    /// Gets the list of domain events recorded by this aggregate.
+    /// </summary>
+    IReadOnlyList<IDomainEvent> DomainEvents { get; }
+
+    /// <summary>
+    /// Clears all recorded domain events.
+    /// </summary>
+    void ClearDomainEvents();
+}
+
+/// <summary>
 /// Base class for Aggregate Roots in tactical Domain-Driven Design.
 /// Aggregate roots act as transaction and consistency gateways for all enclosed entities.
 /// They are responsible for recording domain events and managing optimistic concurrency versions.
 /// </summary>
 /// <typeparam name="TId">The strongly-typed identifier type.</typeparam>
-public abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot
+public abstract class AggregateRoot<TId> : Entity<TId>, IAggregateRoot, IHasDomainEvents
     where TId : notnull
 {
     private readonly List<IDomainEvent> _domainEvents = [];
