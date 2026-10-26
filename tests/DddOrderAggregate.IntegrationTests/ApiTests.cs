@@ -227,4 +227,29 @@ public class ApiTests : IAsyncLifetime
         operationIds.Count.ShouldBeGreaterThanOrEqualTo(11);
         operationIds.Distinct().Count().ShouldBe(operationIds.Count);
     }
+
+    [Fact]
+    public async Task Scalar_ServesDocumentationHtml()
+    {
+        var response = await _client.GetAsync("/scalar/v1");
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.ShouldContain("scalar");
+    }
+
+    [Theory]
+    [InlineData("/")]
+    [InlineData("/scalar")]
+    public async Task RootAndScalarEndpoints_RedirectToScalarV1(string path)
+    {
+        using var client = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var response = await client.GetAsync(path);
+        response.StatusCode.ShouldBe(HttpStatusCode.Redirect);
+        response.Headers.Location.ShouldNotBeNull();
+        response.Headers.Location.OriginalString.ShouldBe("/scalar/v1");
+    }
 }

@@ -44,10 +44,12 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("OpenApi:Enabled", false))
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.MapGet("/", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
+    app.MapGet("/scalar", () => Results.Redirect("/scalar/v1")).ExcludeFromDescription();
 }
 
 // Health checks
