@@ -10,5 +10,7 @@
     <NuGetAudit>true</NuGetAudit>
     <NuGetAuditMode>all</NuGetAuditMode>
     <WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
+    <!-- CA1711: Identifiers should not have incorrect suffix. In tactical DDD and Clean Architecture, IDomainEventHandler and event handler types intentionally use the EventHandler suffix. -->
+    <NoWarn>$(NoWarn);CA1711</NoWarn>
   </PropertyGroup>
 </Project>
