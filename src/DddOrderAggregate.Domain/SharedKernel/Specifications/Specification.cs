@@ -60,11 +60,13 @@ public abstract class Specification<T> : ISpecification<T>
         {
             var parameter = Expression.Parameter(typeof(TType), "entity");
 
-            var leftVisitor = new ParameterReplacerVisitor(left.Criteria.Parameters[0], parameter);
-            var leftBody = leftVisitor.Visit(left.Criteria.Body)!;
+            var leftCriteria = left.Criteria;
+            var leftVisitor = new ParameterReplacerVisitor(leftCriteria.Parameters[0], parameter);
+            var leftBody = leftVisitor.Visit(leftCriteria.Body)!;
 
-            var rightVisitor = new ParameterReplacerVisitor(right.Criteria.Parameters[0], parameter);
-            var rightBody = rightVisitor.Visit(right.Criteria.Body)!;
+            var rightCriteria = right.Criteria;
+            var rightVisitor = new ParameterReplacerVisitor(rightCriteria.Parameters[0], parameter);
+            var rightBody = rightVisitor.Visit(rightCriteria.Body)!;
 
             var combinedBody = mergeOperator(leftBody, rightBody);
             _expression = Expression.Lambda<Func<TType, bool>>(combinedBody, parameter);
@@ -79,8 +81,10 @@ public abstract class Specification<T> : ISpecification<T>
 
         public NotSpecification(Specification<TType> inner)
         {
-            var parameter = inner.Criteria.Parameters[0];
-            var negatedBody = Expression.Not(inner.Criteria.Body);
+            var parameter = Expression.Parameter(typeof(TType), "entity");
+            var innerCriteria = inner.Criteria;
+            var visitor = new ParameterReplacerVisitor(innerCriteria.Parameters[0], parameter);
+            var negatedBody = Expression.Not(visitor.Visit(innerCriteria.Body)!);
             _expression = Expression.Lambda<Func<TType, bool>>(negatedBody, parameter);
         }
 

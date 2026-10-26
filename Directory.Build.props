@@ -12,6 +12,8 @@
     <WarningsAsErrors>$(WarningsAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
     <!-- CA1711: Identifiers should not have incorrect suffix. In tactical DDD and Clean Architecture, IDomainEventHandler and event handler types intentionally use the EventHandler suffix. -->
     <!-- CA1861: Prefer static readonly fields over constant array arguments. Suppressed because EF Core generated migrations use inline arrays for column index definitions. -->
-    <NoWarn>$(NoWarn);CA1711;CA1861</NoWarn>
+    <!-- CA1707: Identifiers should not contain underscores. Test method names conventionally use underscores to separate preconditions, operations, and expected outcomes. -->
+    <!-- xUnit1051: Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken. Suppressed in test assertions where asynchronous operations run without external cancellation. -->
+    <NoWarn>$(NoWarn);CA1711;CA1861;CA1707;xUnit1051</NoWarn>
   </PropertyGroup>
 </Project>
