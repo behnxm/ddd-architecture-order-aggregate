@@ -63,15 +63,15 @@ flowchart TD
 | :--- | :--- | :--- |
 | **Aggregate Root** | [`Order.cs`](src/DddOrderAggregate.Domain/Orders/Order.cs) | Enforces invariants, owns child lines, controls mutations, manages versioning. |
 | **Internal Entity** | [`OrderLine.cs`](src/DddOrderAggregate.Domain/Orders/OrderLine.cs) | Child entity within aggregate boundary; internal mutators callable only by the root. |
-| **Value Object** | [`Money.cs`](src/DddOrderAggregate.Domain/ValueObjects/Money.cs), [`Quantity.cs`](src/DddOrderAggregate.Domain/ValueObjects/Quantity.cs), [`Currency.cs`](src/DddOrderAggregate.Domain/ValueObjects/Currency.cs), [`Address.cs`](src/DddOrderAggregate.Domain/ValueObjects/Address.cs) | Immutable concept with value equality, self-validation, and private copy constructors. |
-| **Strongly-Typed ID** | [`OrderId.cs`](src/DddOrderAggregate.Domain/Identifiers/OrderId.cs), [`OrderLineId.cs`](src/DddOrderAggregate.Domain/Identifiers/OrderLineId.cs), [`CustomerId.cs`](src/DddOrderAggregate.Domain/Identifiers/CustomerId.cs), [`ProductId.cs`](src/DddOrderAggregate.Domain/Identifiers/ProductId.cs) | Readonly record struct wrapping UUIDv7; prevents accidental parameter swapping. |
-| **Domain Event** | [`OrderEvents.cs`](src/DddOrderAggregate.Domain/Orders/OrderEvents.cs) | Immutable record representing a state change that already happened within the aggregate. |
-| **Integration Event** | [`OrderIntegrationEvents.cs`](src/DddOrderAggregate.Application/Orders/Events/OrderIntegrationEvents.cs) | Boundary event published to the Transactional Outbox for consumption by other contexts. |
-| **Specification** | [`OrderSpecifications.cs`](src/DddOrderAggregate.Domain/Orders/Specifications/OrderSpecifications.cs) | Encapsulated domain predicate reusable across in-memory evaluation and EF Core LINQ queries. |
-| **Repository** | [`IOrderRepository.cs`](src/DddOrderAggregate.Domain/Orders/IOrderRepository.cs), [`OrderRepository.cs`](src/DddOrderAggregate.Infrastructure/Persistence/Repositories/OrderRepository.cs) | Persistence abstraction exclusively for the Aggregate Root. No `IOrderLineRepository` exists. |
-| **Read Repository** | [`IOrderReadRepository.cs`](src/DddOrderAggregate.Application/Common/Persistence/IOrderReadRepository.cs), [`OrderReadRepository.cs`](src/DddOrderAggregate.Infrastructure/Persistence/Repositories/OrderReadRepository.cs) | Non-tracking projection queries for read models, completely decoupled from aggregate state tracking. |
+| **Value Object** | [`Money.cs`](src/DddOrderAggregate.Domain/Orders/ValueObjects/Money.cs), [`Quantity.cs`](src/DddOrderAggregate.Domain/Orders/ValueObjects/Quantity.cs), [`Currency.cs`](src/DddOrderAggregate.Domain/Orders/ValueObjects/Currency.cs), [`Address.cs`](src/DddOrderAggregate.Domain/Orders/ValueObjects/Address.cs) | Immutable concept with value equality, self-validation, and private copy constructors. |
+| **Strongly-Typed ID** | [`OrderId.cs`](src/DddOrderAggregate.Domain/Orders/Identifiers/OrderId.cs), [`OrderLineId.cs`](src/DddOrderAggregate.Domain/Orders/Identifiers/OrderLineId.cs), [`CustomerId.cs`](src/DddOrderAggregate.Domain/Orders/Identifiers/CustomerId.cs), [`ProductId.cs`](src/DddOrderAggregate.Domain/Orders/Identifiers/ProductId.cs) | Readonly record struct wrapping UUIDv7; prevents accidental parameter swapping. |
+| **Domain Event** | [`OrderSubmittedDomainEvent.cs`](src/DddOrderAggregate.Domain/Orders/Events/OrderSubmittedDomainEvent.cs) | Immutable record representing a state change that already happened within the aggregate. |
+| **Integration Event** | [`OrderSubmittedIntegrationEvent.cs`](src/DddOrderAggregate.Application/IntegrationEvents/OrderSubmittedIntegrationEvent.cs) | Boundary event published to the Transactional Outbox for consumption by other contexts. |
+| **Specification** | [`StaleDraftOrdersSpecification.cs`](src/DddOrderAggregate.Domain/Orders/Specifications/StaleDraftOrdersSpecification.cs) | Encapsulated domain predicate reusable across in-memory evaluation and EF Core LINQ queries. |
+| **Repository** | [`IOrderRepository.cs`](src/DddOrderAggregate.Domain/Orders/IOrderRepository.cs), [`OrderRepository.cs`](src/DddOrderAggregate.Infrastructure/Repositories/OrderRepository.cs) | Persistence abstraction exclusively for the Aggregate Root. No `IOrderLineRepository` exists. |
+| **Read Repository** | [`IOrderReadRepository.cs`](src/DddOrderAggregate.Application/Ports/IOrderReadRepository.cs), [`OrderReadRepository.cs`](src/DddOrderAggregate.Infrastructure/ReadModels/OrderReadRepository.cs) | Non-tracking projection queries for read models, completely decoupled from aggregate state tracking. |
 | **Factory Method** | [`Order.Create(...)`](src/DddOrderAggregate.Domain/Orders/Order.cs#L35) | Private constructor and public static factory method to guarantee that an aggregate is always valid upon instantiation. |
-| **Anti-Corruption Layer** | [`IProductCatalog.cs`](src/DddOrderAggregate.Application/Common/Ports/IProductCatalog.cs), [`InMemoryProductCatalog.cs`](src/DddOrderAggregate.Infrastructure/Catalog/InMemoryProductCatalog.cs) | Isolates Ordering domain from the upstream Catalog context; stores snapshots of Product Name and Unit Price. |
+| **Anti-Corruption Layer** | [`IProductCatalog.cs`](src/DddOrderAggregate.Application/Ports/IProductCatalog.cs), [`InMemoryProductCatalog.cs`](src/DddOrderAggregate.Infrastructure/Catalog/InMemoryProductCatalog.cs) | Isolates Ordering domain from the upstream Catalog context; stores snapshots of Product Name and Unit Price. |
 | **Transactional Outbox** | [`OutboxMessage.cs`](src/DddOrderAggregate.Infrastructure/Outbox/OutboxMessage.cs), [`OutboxProcessor.cs`](src/DddOrderAggregate.Infrastructure/Outbox/OutboxProcessor.cs) | Guarantees atomic state persistence and outbox publication in a single database transaction. |
 | **Optimistic Concurrency** | [`Order.cs`](src/DddOrderAggregate.Domain/Orders/Order.cs#L22), [`OrderEndpoints.cs`](src/DddOrderAggregate.Api/Endpoints/OrderEndpoints.cs) | Aggregate `Version` property mapped as EF concurrency token; exposed via HTTP `ETag` and enforced via `If-Match`. |
 | **Ubiquitous Language** | [`ubiquitous-language.md`](docs/domain/ubiquitous-language.md) | Shared glossary bridging business domain concepts directly to code constructs and methods. |
@@ -251,10 +251,10 @@ Key architectural decisions are recorded in `docs/adr/`:
 
 ---
 
-## Technical Interview Guide
+## Technical Interview Guide ("Why & How" Notes)
 
-For a curated collection of 15 in-depth interview questions and answers mapping directly to this codebase, see:
-- [Technical Interview Notes](docs/INTERVIEW-NOTES.md)
+For a curated collection of 15 in-depth interview questions and architectural answers mapping directly to this codebase, see:
+- [Why & How Notes](docs/Why-and-How-Notes.md)
 
 ---
 
