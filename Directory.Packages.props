@@ -21,7 +21,7 @@
 
     <!-- API & Documentation -->
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.3" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.18.7" />
 
     <!-- Testing Framework & Assertion Libraries -->
     <PackageVersion Include="xunit.v3" Version="4.0.2" />
